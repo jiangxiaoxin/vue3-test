@@ -101,7 +101,9 @@ build({
   },
   watch: {
     onRebuild(error) {
-      if (!error) console.log(`rebuilt: ${relativeOutfile}`)
+      if (!error) {
+        console.log(`rebuilt: ${relativeOutfile} time: ${new Date().toLocaleString()}`)
+      }
     }
   }
 }).then(() => {

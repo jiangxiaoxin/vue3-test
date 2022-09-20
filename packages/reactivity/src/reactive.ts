@@ -29,7 +29,8 @@ export interface Target {
   [ReactiveFlags.RAW]?: any
 }
 
-export const reactiveMap = new WeakMap<Target, any>()
+// 这里存的就是普通的对象完成reactive响应式变化之后,target---> proxy
+export const reactiveMap = new WeakMap<Target, any>() 
 export const shallowReactiveMap = new WeakMap<Target, any>()
 export const readonlyMap = new WeakMap<Target, any>()
 export const shallowReadonlyMap = new WeakMap<Target, any>()
@@ -89,9 +90,13 @@ export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRefSimple<T>
 export function reactive<T extends object>(target: T): UnwrapNestedRefs<T>
 export function reactive(target: object) {
   // if trying to observe a readonly proxy, return the readonly version.
+  // 几个这种isXXXX的方法都是通过看target上有没有vue提前定义好的特殊属性来判断的
   if (isReadonly(target)) {
     return target
   }
+  // 第2个参数isReadyonly设置false。reactive当然不希望自己处理的对象变成readonly了
+  // mutableHandlers 就是个对象，它有几个方法，是用来当作ProxyHandler的。
+  // 使用reactive将对象转换为响应式数据之后，当通过proxy访问对象属性时就会通过它们来触发
   return createReactiveObject(
     target,
     false,
@@ -178,6 +183,10 @@ export function shallowReadonly<T extends object>(target: T): Readonly<T> {
   )
 }
 
+// https://bill-lai.github.io/article/6452d43210bfdd32fd3c/#%E9%9B%86%E5%90%88%E6%8B%A6%E6%88%AA%E5%99%A8
+
+// https://bill-lai.github.io/article/9c6d734aa72e04e0f8dd/
+
 function createReactiveObject(
   target: Target,
   isReadonly: boolean,
@@ -186,6 +195,7 @@ function createReactiveObject(
   proxyMap: WeakMap<Target, any>
 ) {
   if (!isObject(target)) {
+    // 因为proxy只能是包装对象
     if (__DEV__) {
       console.warn(`value cannot be made reactive: ${String(target)}`)
     }
@@ -204,6 +214,10 @@ function createReactiveObject(
   if (existingProxy) {
     return existingProxy
   }
+
+  /**
+   * getTargetType 里会做判断，对于有skip标记的，会返回invalid，从而直接return target，就不响应式变化了
+   */
   // only specific value types can be observed.
   const targetType = getTargetType(target)
   if (targetType === TargetType.INVALID) {
@@ -213,6 +227,8 @@ function createReactiveObject(
     target,
     targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers
   )
+  // 这里以target为键，生成的proxy为值，存入不同的map中
+  // 当target[raw]时，又从map中取出target这个键
   proxyMap.set(target, proxy)
   return proxy
 }
@@ -235,7 +251,8 @@ export function isShallow(value: unknown): boolean {
 export function isProxy(value: unknown): boolean {
   return isReactive(value) || isReadonly(value)
 }
-
+// 这里一直递归.可能会有 readonly(reactive({}))写法，所以需要深入获取
+// 返回响应式对象的原本对象
 export function toRaw<T>(observed: T): T {
   const raw = observed && (observed as Target)[ReactiveFlags.RAW]
   return raw ? toRaw(raw) : observed
@@ -244,10 +261,14 @@ export function toRaw<T>(observed: T): T {
 export function markRaw<T extends object>(
   value: T
 ): T & { [RawSymbol]?: true } {
+  // markRaw 可以将参数标记为不可变成响应式数据。实现原理就是给value加一个skip标记，这样在to reactive时通过判断这个标记，直接跳过响应式转换
   def(value, ReactiveFlags.SKIP, true)
   return value
 }
 
+/**
+ * 如果是obj，就去转换成响应式。如果是普通的类型数据，就直接返回这个数据
+ */
 export const toReactive = <T extends unknown>(value: T): T =>
   isObject(value) ? reactive(value) : value
 

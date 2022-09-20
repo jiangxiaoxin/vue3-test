@@ -57,7 +57,9 @@ export {
   EffectScheduler,
   DebuggerOptions,
   DebuggerEvent,
-  DebuggerEventExtraInfo
+  DebuggerEventExtraInfo,
+  showActiveEffect,
+  showEffectCount
 } from './effect'
 export {
   effectScope,

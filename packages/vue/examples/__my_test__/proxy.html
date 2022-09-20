@@ -1,0 +1,36 @@
+<script>
+  let person = {
+    name: 'a'
+  }
+
+  function makeProxy(obj) {
+    let proxy = new Proxy(obj, {
+      get(target, key, receiver) {
+        return Reflect.get(target, key, receiver)
+      },
+      set(target, key, value, receiver) {
+        return Reflect.set(target, key, value, receiver)
+      }
+    })
+
+    return proxy
+  }
+
+
+  let proxy = makeProxy(person)
+
+  // proxy.name = 'bbbb'
+
+  // console.log('1', person.name);
+  // console.log('2', proxy.name);
+
+
+  // person.name = 'ccc'
+  // console.log('1', person.name);
+  // console.log('2', proxy.name);
+
+  console.log(person);
+  console.log(proxy);
+
+
+</script>

@@ -372,6 +372,9 @@ export function transformVNodeArgs(transformer?: typeof vnodeArgsTransformer) {
   vnodeArgsTransformer = transformer
 }
 
+/**
+ * dev模式下对args进行下转化操作
+ */
 const createVNodeWithArgsTransform = (
   ...args: Parameters<typeof _createVNode>
 ): VNode => {
@@ -416,8 +419,8 @@ function createBaseVNode(
     __v_skip: true,
     type,
     props,
-    key: props && normalizeKey(props),
-    ref: props && normalizeRef(props),
+    key: props && normalizeKey(props), // 从props里取key
+    ref: props && normalizeRef(props), // 从props里取ref.但是取出来的结构有点怪
     scopeId: currentScopeId,
     slotScopeIds: null,
     children,
@@ -454,6 +457,7 @@ function createBaseVNode(
   }
 
   // validate key
+  // 一般情况下key是相等的,只有在NaN的时候不相等
   if (__DEV__ && vnode.key !== vnode.key) {
     warn(`VNode created with invalid key (NaN). VNode type:`, vnode.type)
   }
@@ -510,8 +514,9 @@ function _createVNode(
     // createVNode receiving an existing vnode. This happens in cases like
     // <component :is="vnode"/>
     // #2078 make sure to merge refs during the clone instead of overwriting it
-    const cloned = cloneVNode(type, props, true /* mergeRef: true */)
-    if (children) {
+    // type 本身就已经是个vnode.在vnode.spec.ts测试集里有这样的测试,要把前后两次的vnode的属性全部收集起来
+    const cloned = cloneVNode(type, props, true /* mergeRef: true */) // 如果是克隆的,cloned这个vnode会带有children.现在_createVNode又传一个children进来,那就应该知道如何合并两次的children
+    if (children) {   
       normalizeChildren(cloned, children)
     }
     if (isBlockTreeEnabled > 0 && !isBlockNode && currentBlock) {
@@ -741,6 +746,8 @@ export function cloneIfMounted(child: VNode): VNode {
 }
 
 export function normalizeChildren(vnode: VNode, children: unknown) {
+  // debugger
+  // 不管怎么传children都会替换调原来vnode的children
   let type = 0
   const { shapeFlag } = vnode
   if (children == null) {

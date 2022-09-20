@@ -81,6 +81,8 @@ export function watchEffect(
   effect: WatchEffect,
   options?: WatchOptionsBase
 ): WatchStopHandle {
+  // console.log('1. in watchEffect');
+  
   return doWatch(effect, null, options)
 }
 
@@ -167,6 +169,7 @@ export function watch<T = any, Immediate extends Readonly<boolean> = false>(
         `supports \`watch(source, cb, options?) signature.`
     )
   }
+  // debugger
   return doWatch(source as any, cb, options)
 }
 
@@ -175,7 +178,14 @@ function doWatch(
   cb: WatchCallback | null,
   { immediate, deep, flush, onTrack, onTrigger }: WatchOptions = EMPTY_OBJ
 ): WatchStopHandle {
+
+  // console.log('2. in doWatch');
+  
+
+// debugger
+
   if (__DEV__ && !cb) {
+    // cb是个回调函数。watch里必须传入这个cb，watchEffect构造时这里传入的就是null，所以可以通过cb有没有判断出是 watch走过来还是 watchEffect走过来，所以下面的warn 说的都是 watch的事，没提watchEffect
     if (immediate !== undefined) {
       warn(
         `watch() "immediate" option is only respected when using the ` +
@@ -203,7 +213,7 @@ function doWatch(
   let getter: () => any
   let forceTrigger = false
   let isMultiSource = false
-
+  // debugger
   if (isRef(source)) {
     getter = () => source.value
     forceTrigger = isShallow(source)
@@ -228,11 +238,17 @@ function doWatch(
   } else if (isFunction(source)) {
     if (cb) {
       // getter with cb
+      // debugger
+      // watch 才有cb，watchEffect 里没有，而且限定 watch 必须有 cb
       getter = () =>
         callWithErrorHandling(source, instance, ErrorCodes.WATCH_GETTER)
     } else {
       // no cb -> simple effect
+      // 所以没有 cb时就跑到这里，就是 watchEffect走这
+      // console.log('3. doWatch simple effect create getter');
+      
       getter = () => {
+        // debugger
         if (instance && instance.isUnmounted) {
           return
         }
@@ -298,6 +314,8 @@ function doWatch(
 
   let oldValue = isMultiSource ? [] : INITIAL_WATCHER_VALUE
   const job: SchedulerJob = () => {
+    // console.log("in watch job:SchedulerJob");
+    
     if (!effect.active) {
       return
     }
@@ -330,6 +348,8 @@ function doWatch(
       }
     } else {
       // watchEffect
+      // console.log('watchEffect就直接走 effect.run');
+      
       effect.run()
     }
   }
@@ -345,14 +365,22 @@ function doWatch(
     scheduler = () => queuePostRenderEffect(job, instance && instance.suspense)
   } else {
     // default: 'pre'
+    // console.log('-- default: pre');
+    
     job.pre = true
     if (instance) job.id = instance.uid
     scheduler = () => queueJob(job)
   }
 
+  // 创建ReactiveEffect可以传入回调和调度器
+  // trigger effect时,如果有scheduler就执行scheduler,如果没有就执行run
   const effect = new ReactiveEffect(getter, scheduler)
+  // console.log('!! 4 create effect', effect, getter);
+  
 
   if (__DEV__) {
+    // 只有在dev模式下才能有这两个方法
+    // 只是简单的将通过options传入的两个回调赋值给新构建成的ReactiveEffect
     effect.onTrack = onTrack
     effect.onTrigger = onTrigger
   }
@@ -370,6 +398,11 @@ function doWatch(
       instance && instance.suspense
     )
   } else {
+
+    // debugger
+    // 普通的watchEffect会立马走到这
+    // console.log('5 effect will run');
+    
     effect.run()
   }
 

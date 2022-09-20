@@ -1,0 +1,44 @@
+
+<script src="../../../dist/vue.global.js"></script>
+
+<script>
+const { watchEffect, reactive, ref } = Vue
+
+const person = reactive({
+  // info: {
+  //   name: 'jy'
+  // },
+  count: 0
+})
+
+
+// 二者打印都是proxy,但按照原理 reactive之后并不会层层递归的做proxy代理.能层层代理下去就是在访问的时候,动态的转换的.
+// console.log(person);
+// console.log(person.info)
+
+watchEffect(() => {
+  console.log("count", person.count);
+})
+
+
+
+/**
+ * person 是reactive之后返回的对象,它是个proxy
+ * 那么当person.count = 100时,是通过一个proxy对原来的对象调用set方法,set方法里接收到的receiver就是person这个proxy,而target就是原原本本的单纯的对象
+ * toRaw(receiver)去寻找它对应的原始对象,就是通过reactiveMap(target->proxy)里判断出原始对象
+ * /
+
+// person.count = 100;
+
+// const count = ref(11);
+
+// const foo = reactive({
+//   count: count
+// })
+
+// watchEffect(() => {
+//   console.log('foo', foo.count);
+// })
+
+
+</script>

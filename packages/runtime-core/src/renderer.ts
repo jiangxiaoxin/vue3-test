@@ -362,6 +362,12 @@ function baseCreateRenderer(
     slotScopeIds = null,
     optimized = __DEV__ && isHmrUpdating ? false : !!n2.dynamicChildren
   ) => {
+
+    // debugger
+
+    console.log('patch');
+    
+
     if (n1 === n2) {
       return
     }

@@ -64,11 +64,15 @@ export const hydrate = ((...args) => {
 }) as RootHydrateFunction
 
 export const createApp = ((...args) => {
+  // 在这已经传进去 rootComponent了
   const app = ensureRenderer().createApp(...args)
 
   if (__DEV__) {
     injectNativeTagCheck(app)
     injectCompilerOptionsCheck(app)
+
+    console.log('createApp in dev');
+    
   }
 
   const { mount } = app
@@ -83,6 +87,10 @@ export const createApp = ((...args) => {
       // The user must make sure the in-DOM template is trusted. If it's
       // rendered by the server, the template should not contain any user data.
       component.template = container.innerHTML
+
+
+      // rootComponent如果不是渲染函数,也没有render和template,就会使用挂在的根元素的内部html当作模板来渲染.这在之前的例子中测试过了
+
       // 2.x compat check
       if (__COMPAT__ && __DEV__) {
         for (let i = 0; i < container.attributes.length; i++) {
@@ -100,9 +108,12 @@ export const createApp = ((...args) => {
 
     // clear content before mounting
     container.innerHTML = ''
+    // 调用app里的mount,并不是此处覆盖之后的app.最主要就是createVNode
     const proxy = mount(container, false, container instanceof SVGElement)
     if (container instanceof Element) {
-      container.removeAttribute('v-cloak')
+      container.removeAttribute('v-cloak') // cloak斗篷,遮蔽
+      // 如果在html里直接写代码,那模板本身的结构也是实际的dom结构,在完成vue的操作之前,html元素就是最普通的可视元素,这样就会出现闪现的情况
+      // 给挂在的根元素添加v-cloak,vue处理完之前有这个属性,元素不可见.处理完之后移除属性,元素可见.这样就不会闪现了
       container.setAttribute('data-v-app', '')
     }
     return proxy
@@ -177,6 +188,9 @@ function injectCompilerOptionsCheck(app: App) {
   }
 }
 
+/**
+ * 找出要挂载的根容器
+ */
 function normalizeContainer(
   container: Element | ShadowRoot | string
 ): Element | null {

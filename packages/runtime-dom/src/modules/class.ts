@@ -11,12 +11,16 @@ export function patchClass(el: Element, value: string | null, isSVG: boolean) {
     value = (
       value ? [value, ...transitionClasses] : [...transitionClasses]
     ).join(' ')
-  }
+  } // 最后还是个全的字符串
+  // // 其实就是这样 if-else-（if-else）
+    // value有值就是添加，没值就是删除
   if (value == null) {
     el.removeAttribute('class')
-  } else if (isSVG) {
-    el.setAttribute('class', value)
   } else {
-    el.className = value
+    if (isSVG) {
+      el.setAttribute('class', value)
+    } else {
+      el.className = value
+    }
   }
 }

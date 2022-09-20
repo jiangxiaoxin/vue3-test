@@ -1,0 +1,31 @@
+npm install -g pnpm
+
+pnpm install
+
+pnpm run dev
+
+pnpm run serve
+
+http://localhost:5000/packages/vue/examples/composition/__test__/computed
+
+
+1. 一个watchEffect里访问了两个属性,那这两个属性都会有各自的dep,当一个update方法同时更新这两个属性时,通过proxy set应该是分别调用了两遍trigger,但为什么最后watchEffect的方法只执行了一次?
+
+2. 如果换成effect,会执行几次??
+effect 会是两次
+
+3. flushJob 和 schedule 这是watchEffect只执行一次的关键
+
+4. 一个target上的key可以对应一系列的 effect,并且这些effect在收集的时候,收集的顺序可能跟别的effect交织在一起,那重新执行时如何确保执行的顺序呢?
+
+effect(() => { // e1
+  state.a
+  effect(() => { // e2
+    state.b
+  })
+  effect(() => { // e3
+    state.a
+  })
+})
+
+a会收集[e1, e3], b会收集[e1, e2], 更新b,e1会重新执行,e2也会重新执行

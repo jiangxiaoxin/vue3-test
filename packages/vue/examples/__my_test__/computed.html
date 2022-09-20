@@ -1,0 +1,24 @@
+<button id="btn">update</button>
+
+<script src="../../../dist/vue.global.js"></script>
+
+<script>
+  const { reactive, computed } = Vue
+
+  const state = reactive({
+    count: 0
+  })
+
+  const cc = computed(() => {
+    return state.count
+  })
+
+  console.log("-----init", cc.value)
+
+  let btn = document.getElementById("btn")
+  btn.addEventListener("click", () => {
+    state.count = 5;
+    // console.log('===> isOdd', isOdd.value);
+  })
+
+</script>

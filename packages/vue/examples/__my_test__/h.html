@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>h测试</title>
+    <script src="../../dist/vue.global.js"></script>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <style>
+      .red {
+        color: red;
+      }
+
+      .green {
+        color: green;
+      }
+
+      .big {
+        font-size: 40px;
+      }
+
+    </style>
+
+    <script>
+      const { h, createApp, reactive, ref } = Vue
+
+      const App = {
+        // exposed: true,
+        setup() {
+          let state = reactive({
+            count: 0
+          })
+
+          let add = () => {
+            state.count++
+          }
+
+          return {
+            state,
+            add
+          }
+        },
+
+        render() {
+
+          const vnode = h("div", {class: 'red'}, [
+            h("p", null, [this.state.count]),
+            h("button", {onClick: this.add}, "click")
+          ])
+
+          return vnode
+        }
+      }
+
+      const app = createApp(App)
+      app.mount('#app')
+
+      // app.$watch
+
+      console.log(app);
+    </script>
+  </body>
+</html>

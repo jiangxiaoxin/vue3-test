@@ -1,0 +1,29 @@
+<script src="../../../`dist/vue.global.js"></script>
+
+<script>
+  const { reactive } = Vue
+
+  const a = {
+    count: 0
+  }
+
+  const b = reactive(a)
+
+  const array1 = [a];
+
+  const array2 = [b]
+
+  const array3 = reactive(array1)
+
+  console.log(array3);
+
+  const array4 = reactive(array2)
+
+  console.log("==", array3 == array4);
+
+  // 代码里提示，indexOf可能参数是reactive化之后的对象b，不是原来的对象a了
+
+  console.log(array3.indexOf(a), array3.indexOf(b));
+  console.log(array4.indexOf(a), array4.indexOf(b))
+
+</script>

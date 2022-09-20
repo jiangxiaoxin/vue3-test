@@ -172,7 +172,9 @@ export {
   DebuggerEvent,
   DebuggerEventExtraInfo,
   TrackOpTypes,
-  TriggerOpTypes
+  TriggerOpTypes,
+  showActiveEffect,
+  showEffectCount
 } from '@vue/reactivity'
 export {
   WatchEffect,

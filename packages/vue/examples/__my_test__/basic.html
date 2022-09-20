@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>响应式</title>
+
+    <style>
+      body {
+        font-family: Menlo, Consolas, monospace;
+        color: #444;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="../../../dist/vue.global.js"></script>
+    <div id="demo"></div>
+
+    <script type="text/x-template" id="template">
+        <p>count:{{count}}</p>
+        <!-- <p>count2: {{count2}}</p> -->
+        <button @click="changeCount">count</button>
+        <!-- <p>time:{{data.time}}</p>
+      <button @click="changeTime">time</button> -->
+    </script>
+    <script>
+      const {
+        reactive,
+        computed,
+        toRefs,
+        createApp,
+        ref,
+        isReactive,
+        watch,
+        watchEffect,
+        onMounted
+      } = Vue
+
+      const app = createApp({
+        // 这个template可以用来指定组件的模板.它最终需要的是模板对应的字符串.这种形式使用组件,组件并不会在编译时产生render方法,而是在运行时再去编译模板产生对应的显示dom
+        // 如果是 #id格式,vue就会自己去get这个节点,使用它的innerHtml
+        // 如果是字符串格式,就会直接当作模板字符串
+        // 如果没有render,也没有template,就会看最终挂载在哪个节点上,比如这里的#demo,用这个节点的innerHtml来当template
+        template: document.getElementById('template').innerHTML,
+        setup() {
+          const count = ref(1)
+
+          // watchEffect(() => {
+          //   console.log("watch effect count变了", count.value)
+          // })
+
+          // 声明好count的ref之后，啥也不操作，那它并不是响应式的。此时它没有经历get value，也就没有收集到依赖，直接就通过set value赋值，会发现 ref.dep 是空的，它没有被谁依赖，不会真的trigger 了什么。只有先调用 get value之后，完成了依赖收集，再set value时才会trigger 一堆依赖。
+          // count.value = 10
+
+          // watch(count, (newC) => {
+          //   // debugger
+          //   console.log('--watch', newC);
+          // })
+
+          // const count2 = computed(() => count.value+1)
+
+          // watchEffect( () => {
+          //   console.log('effect count', count.value)
+          //   // watchEffect(() => {
+          //   //   console.log('-- effect count2', count2.value)
+          //   // })
+          // })
+
+          // watch(() => count.value, () => {
+          //   console.log("watch一个getter cb");
+          // }, {
+          //   immediate: true
+          // })
+
+          // watchEffect(() => {
+          //   console.log("watch effect 我也watch到了", count.value)
+          // },{
+          //   flush: 'post'
+          // })
+
+          // onMounted(() => {
+          //   console.log('--组件moounted')
+          // })
+
+          const data = reactive({
+            time: new Date()
+          })
+
+          const changeCount = () => {
+            count.value++
+
+            // 虽然只是change了一下count，然后带来页面的更新，但是仍然会去带动一次data.time的访问，而且断点下去会发现，data.time通过proxy的get（createGetter）方法获取的，一步步走下去，重走了一遍reactive() -> createReactiveObject() 的逻辑。但是在 getTargetType 时发现 time是个Date类型，不是普通的Object或者Array，所以返回了 valid，从而直接返回了 time。那这就意味着，每次更新会重新访问所有的变量，但会在前后两次刷新中对比哪些地方真的需要更新，从而完成页面的刷新
+          }
+
+          const changeTime = () => {
+            // data.time = new Date()
+            console.log(isReactive(data))
+          }
+
+          return {
+            count,
+            data,
+            changeCount,
+            changeTime
+            // count2
+          }
+        }
+      })
+
+      app.mount('#demo')
+    </script>
+  </body>
+</html>

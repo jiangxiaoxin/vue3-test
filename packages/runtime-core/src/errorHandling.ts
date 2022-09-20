@@ -59,6 +59,9 @@ export const ErrorTypeStrings: Record<number | string, string> = {
 
 export type ErrorTypes = LifecycleHooks | ErrorCodes
 
+/**
+ * 就只是用try-catch封装了执行函数的逻辑
+ */
 export function callWithErrorHandling(
   fn: Function,
   instance: ComponentInternalInstance | null,
@@ -67,22 +70,35 @@ export function callWithErrorHandling(
 ) {
   let res
   try {
+    // console.log('%c callWithErrorHandling 要执行自己的fn', "background: #0c0c0c;color: white;", fn);
+    
     res = args ? fn(...args) : fn()
   } catch (err) {
     handleError(err, instance, type)
   }
   return res
 }
-
+/**
+ * 也是封装了执行函数的逻辑，只不过会给promise添加catch方法
+ */
 export function callWithAsyncErrorHandling(
   fn: Function | Function[],
   instance: ComponentInternalInstance | null,
   type: ErrorTypes,
   args?: unknown[]
 ): any[] {
+
+  // console.log("*******callWithAsyncErrorHandling");
+  
   if (isFunction(fn)) {
     const res = callWithErrorHandling(fn, instance, type, args)
+
+    // console.log("after callWithErrorHandling", res);
+    
+
     if (res && isPromise(res)) {
+      // console.log("res是个promise");
+      
       res.catch(err => {
         handleError(err, instance, type)
       })

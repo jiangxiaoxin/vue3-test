@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mini</title>
+</head>
+<body>
+  
+</body>
+
+<script>
+
+let actvieEffect
+
+class Dep {
+
+  constructor(value) {
+    this.subscriber = new Set()
+    this._value = value;
+  }
+
+  get value() {
+    console.log("[get value]")
+    this.depend()
+    return this._value;
+  }
+
+  set value(newValue) {
+    console.log("[set value]")
+    this._value = newValue;
+    this.notify()
+  }
+
+  depend() {
+    actvieEffect && this.subscriber.add(actvieEffect)
+  }
+
+  notify() {
+    this.subscriber.forEach(effect => {
+      effect && effect()
+    })
+  }
+}
+
+function watchEffect(effect) {
+  actvieEffect = effect;
+  effect()
+  actvieEffect = null
+}
+
+const dep = new Dep("init")
+
+watchEffect(() => {
+  console.log("effect run:", dep.value)
+})
+
+watchEffect(() => {
+  console.log("another effect:", dep.value + dep.value);
+})
+
+dep.value = "changed"
+
+
+</script>
+</html>

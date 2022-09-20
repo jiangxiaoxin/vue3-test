@@ -1,0 +1,39 @@
+<script src="../../dist/vue.global.js"></script>
+
+<script>
+  const {effect, ref, reactive} = Vue
+
+  const count = ref(0)
+
+  const product = reactive({
+    price: 10,
+    amount: 0
+  })
+
+  // effect(() => {
+  //   console.log("effect run");
+  // })
+
+  // effect(() => {
+  //   console.log("count", count.value)
+  // })
+
+  // effect(() => {
+  //   console.log("price", product.price)
+  // })
+
+  const runner = effect(() => {
+    effect(() => {
+      effect(() => {
+        console.log("deep count", count.value)
+      })
+    })
+  })
+
+  console.log(runner.effect)
+
+  // runner()
+
+
+
+</script>

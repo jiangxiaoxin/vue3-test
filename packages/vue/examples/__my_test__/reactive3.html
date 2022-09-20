@@ -1,0 +1,111 @@
+<button id="btn-time">update time</button>
+<button id="btn-count">update count</button>
+
+<script src="./Log.js"></script>
+<script src="../../../dist/vue.global.js"></script>
+
+
+<!-- <script>
+
+  function handler(fn) {
+    Log.log("in handler")
+    fn()
+  }
+
+  handler(() => {
+    Log.log(1111)
+    handler(() => {
+      Log.log(22222)
+    })
+    Log.log(3333)
+  })
+
+  /**
+   * in handler
+   * 1111
+   * in handler
+   * 22222
+   * 33333
+   * */
+
+  
+</script> -->
+
+<script>
+  const { reactive, effect, watchEffect, showActiveEffect, showEffectCount } =
+    Vue
+
+  const state = reactive({
+    count: 0,
+    time: new Date().toLocaleString()
+  })
+
+  let fn = () => {
+    console.log(`%c >>>>>>> 真的执行fn了,${fn.__name}`, 'background: pink;')
+    showActiveEffect()
+
+    Log.log('time', state.time)
+    Log.log('count', state.count)
+  }
+
+  fn.__name = '测试方法'
+
+  // effect(fn) // 用effect来包装fn,会记录两遍依赖.调用update后,会重新执行fn两遍,打印两份.而watchEffect就不会这样
+  // watchEffect(fn)
+
+  // 有几次watchEffect,就有几次fn会执行,因为它里面存的并不是直接的fn,而是包装后的fn,那就意味着每次watchEffect之后的包装结果都是不一样的,自然就会触发多次了
+  // watchEffect(fn)
+
+  // effect(fn)
+
+  // TODO:很奇怪, effect 这个方法虽然是公开的,可以导入,但是官方文档却从没提过,并且内部也没有使用这个方法.
+  // 那这个方法设计的目的是什么?? 如何正确的使用??
+  // const runner = effect(fn, {
+  //   lazy: true
+  // })
+  // runner();
+
+  
+
+  // watchEffect(() => {
+  //   // 这样子的effect是不会响应式的
+  //    // 这本身也跟响应式不符.响应式就是当数据变化后,执行后续更新操作.异步操作并不是数据变化,而是为了去获取新的数据,只有获取到新数据并重设数据后,这才到了effect的使用时间.
+  //   return Promise.resolve().then(() => {
+  //     Log.log('time', state.time)
+  //     Log.log('count', state.count)
+  //   })
+  // })
+
+  
+
+  watchEffect(() => {
+    Log.log("e1111111")
+    Log.log(state.time)
+    watchEffect(() => {
+      Log.log("e2") // 这个effect会跑两遍
+      Log.log(state.count)
+    })
+    Log.log("e1222222")
+    Log.log(state.time)
+  })
+
+  const updateCount = () => {
+    state.count = Math.random()
+  }
+
+  const updateTime = () => {
+    state.time = new Date().toLocaleString()
+  }
+
+  let btnTime = document.getElementById('btn-time')
+
+  btnTime.addEventListener('click', updateTime)
+
+  
+
+  let btnCount = document.getElementById('btn-count')
+
+  btnCount.addEventListener('click', updateCount)
+
+  
+</script>

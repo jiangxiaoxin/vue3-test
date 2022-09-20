@@ -1,0 +1,38 @@
+<script src="../../../dist/vue.global.js"></script>
+
+
+<script>
+const {shallowReactive, watchEffect} = Vue
+
+const state = shallowReactive({
+  count: 0,
+  add: {
+    no: 10
+  }
+})
+
+watchEffect(() => {
+  console.log("state", state)
+})
+
+console.log("-----------------");
+
+watchEffect(() => {
+  console.log("count", state.count)
+})
+
+console.log("-----------------");
+
+watchEffect(() => {
+  console.log("add", state.add)
+})
+
+console.log("-----------------");
+
+watchEffect(() => {
+  console.log("no", state.add.no)
+})
+
+
+
+</script>

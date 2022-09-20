@@ -1,0 +1,38 @@
+<script src="../../dist/vue.global.js"></script>
+
+<script>
+  const { watchEffect, reactive, ref } = Vue
+
+  const count = ref(1)
+  const time = ref(Date.now())
+
+  watchEffect(() => {
+    console.log("in effect: ", count.value);
+    console.log('**********');
+    watchEffect(() => {
+      console.log('in effect 2', time.value)
+
+      console.log('////////');
+    })
+  }, {
+    onTrack: (e) => {
+      debugger
+    },
+    onTrigger: (e) => {
+      debugger
+    }
+  })
+
+  console.log('-----')
+
+  count.value = 5;
+
+  console.log('111-=-=-=-=-');
+  // time.value = Math.random();
+
+
+  const a = 99
+  const b = ref(a);
+  console.log(a, b, a == b)
+
+</script>

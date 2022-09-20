@@ -1,0 +1,160 @@
+<script>
+  let actvieEffect = null
+  function watchEffect(effect) {
+    actvieEffect = effect
+    effect()
+    actvieEffect = null
+  }
+
+  // class Dep {
+  //   constructor() {
+  //     this.subscriber = new Set()
+  //   }
+
+  //   depend() {
+  //     console.log("depend")
+  //     if(actvieEffect) {
+  //       console.log("real depend");
+  //       this.subscriber.add(actvieEffect)
+  //     }
+  //   }
+
+  //   notify() {
+  //     console.log("notify", this.subscriber.size)
+  //     this.subscriber.forEach(effect => {
+  //       effect && effect()
+  //     })
+  //   }
+  // }
+
+  // function reactive(raw) {
+  //   Object.keys(raw).forEach(key => {
+  //     const dep = new Dep();
+  //     let value = raw[key];
+
+  //     Object.defineProperty(raw, key, {
+  //       get() {
+  //         console.log("[get value]")
+  //         dep.depend()
+  //         return value
+  //       },
+
+  //       set(newValue) {
+  //         console.log("[set value]", newValue)
+  //         value = newValue;
+  //         return dep.notify()
+  //       }
+  //     })
+  //   })
+  //   return raw
+  // }
+
+  const targetMap = new WeakMap()
+
+  function getDep(target, key) {
+    let depsMap = targetMap.get(target)
+    if (!depsMap) {
+      depsMap = new Map()
+      targetMap.set(target, depsMap)
+    }
+    let dep = depsMap.get(key)
+    if (!dep) {
+      dep = new Set()
+      depsMap.set(key, dep)
+    }
+    return dep
+  }
+
+  function track(target, key) {
+    // console.log('track', target, key)
+    if (actvieEffect) {
+      // console.log('--->>>real track', target, key)
+      const dep = getDep(target, key)
+      // get dep for target[key]
+      dep.add(actvieEffect)
+    }
+  }
+
+  function trigger(target, key) {
+    
+    const dep = getDep(target, key)
+    // console.log('trigger', target, key, dep.size)
+    dep.forEach(effect => {
+      effect()
+    })
+  }
+
+  const handler = {
+    get(target, key, receiver) {
+      // console.log('[--get]')
+      let result = Reflect.get(target, key, receiver)
+      track(target, key)
+      return result
+    },
+
+    set(target, key, value, receiver) {
+      // console.log('[--set]')
+      let result = Reflect.set(target, key, value, receiver)
+      trigger(target, key)
+      return result
+    }
+  }
+
+  function reactvie(raw) {
+    return new Proxy(raw, handler)
+  }
+
+  function ref(raw) {
+    const r = {
+      get value() {
+        track(r, 'value');
+        return raw
+      },
+      set value(newValue) {
+        raw = newValue
+        trigger(r, 'value')
+      }
+    }
+
+    return r;
+  }
+
+  let product = reactvie({
+    price: 10,
+    amount: 5
+  })
+
+  let salePrice = ref(0)
+
+  watchEffect(() => {
+    console.log('salePrice effect');
+    salePrice.value = product.price * 0.9
+  })
+
+  console.log('-- salePrice:', salePrice.value); // 9
+
+  let total = 0
+
+  watchEffect(() => {
+    console.log('total effect')
+    total = salePrice.value * product.amount
+  })
+
+  console.log('--total:', total); // 45
+
+  console.log('---------------------init over')
+
+  product.price = 100;
+  console.log('----------salePrice', salePrice.value);
+  console.log('----------total', total)
+
+
+  product.amount = 10;
+
+  
+  console.log('----------total', total);
+
+  /**
+   * 从上面看，每次调用 get 方法就会走 track 流程，走 set 方法就会走 trigger 流程。但走这些流程并不意味着真的会 track 和 trigger。
+   * /
+</script>

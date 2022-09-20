@@ -173,9 +173,23 @@ export function h<P>(
 // Actual implementation
 export function h(type: any, propsOrChildren?: any, children?: any): VNode {
   const l = arguments.length
+
+  // debugger
+
   if (l === 2) {
+    // 只传递了两个参数，type和 propsOrChildren
     if (isObject(propsOrChildren) && !isArray(propsOrChildren)) {
       // single vnode without props
+
+      /**
+       * h('div', [
+       *    h('span', null, ['hello'])
+       * ])
+       */
+
+      // 当渲染外层的div时，肯定要先知道里面的span是啥样才行吧
+      // 这样对于div的渲染，就变成了 h('div', [some vnode])
+
       if (isVNode(propsOrChildren)) {
         return createVNode(type, null, [propsOrChildren])
       }
@@ -187,6 +201,8 @@ export function h(type: any, propsOrChildren?: any, children?: any): VNode {
     }
   } else {
     if (l > 3) {
+      // 如果长度超过3，认为后面那些都是children
+      // 就是通常情况下是 h(tag, props, children),现在写成了 h(tag, props, child1, child2, child3.....)
       children = Array.prototype.slice.call(arguments, 2)
     } else if (l === 3 && isVNode(children)) {
       children = [children]

@@ -179,9 +179,13 @@ export function createAppAPI<HostElement>(
   hydrate?: RootHydrateFunction
 ): CreateAppFunction<HostElement> {
   return function createApp(rootComponent, rootProps = null) {
+
+    console.log("-root component", rootComponent)
     if (!isFunction(rootComponent)) {
       rootComponent = { ...rootComponent }
     }
+
+    // debugger
 
     if (rootProps != null && !isObject(rootProps)) {
       __DEV__ && warn(`root props passed to app.mount() must be an object.`)
@@ -195,7 +199,7 @@ export function createAppAPI<HostElement>(
 
     const app: App = (context.app = {
       _uid: uid++,
-      _component: rootComponent as ConcreteComponent,
+      _component: rootComponent as ConcreteComponent, // 更多是一个对象,刚一创建完app实例,并不是就创建vnode了.而是在mount时才去创建vnode
       _props: rootProps,
       _container: null,
       _context: context,
@@ -283,6 +287,8 @@ export function createAppAPI<HostElement>(
         isHydrate?: boolean,
         isSVG?: boolean
       ): any {
+
+        debugger
         if (!isMounted) {
           // #5571
           if (__DEV__ && (rootContainer as any).__vue_app__) {
@@ -292,6 +298,8 @@ export function createAppAPI<HostElement>(
                 ` you need to unmount the previous app by calling \`app.unmount()\` first.`
             )
           }
+
+          // vnode就是整个应用的根vnode
           const vnode = createVNode(
             rootComponent as ConcreteComponent,
             rootProps
@@ -310,6 +318,10 @@ export function createAppAPI<HostElement>(
           if (isHydrate && hydrate) {
             hydrate(vnode as VNode<Node, Element>, rootContainer as any)
           } else {
+
+            // 调用render方法渲染真实应用
+            console.log("vnode", vnode);
+            
             render(vnode, rootContainer, isSVG)
           }
           isMounted = true

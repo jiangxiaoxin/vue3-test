@@ -36,6 +36,12 @@ type RefBase<T> = {
   value: T
 }
 
+/**
+ * 对于 ref(0) 这样的响应式数据，这里就是收集依赖的地方。
+ * 声明了ref之后，如果只是在script代码里改动或者访问，并不会有啥响应式好说，因为此时都没有activeEffect，那也就意味着其实并没有真的收集依赖。
+ * 只有真的通过某种方式使用了这些值才会真的收集依赖。在template里使用就是这样的方式。
+ * @param ref RefImpl
+ */
 export function trackRefValue(ref: RefBase<any>) {
   if (shouldTrack && activeEffect) {
     ref = toRaw(ref)
@@ -78,6 +84,7 @@ export function ref<T extends object>(
 export function ref<T>(value: T): Ref<UnwrapRef<T>>
 export function ref<T = any>(): Ref<T | undefined>
 export function ref(value?: unknown) {
+  // shallow=false,响应式是深层次的
   return createRef(value, false)
 }
 
@@ -95,6 +102,7 @@ export function shallowRef(value?: unknown) {
 }
 
 function createRef(rawValue: unknown, shallow: boolean) {
+  // debugger
   if (isRef(rawValue)) {
     return rawValue
   }
@@ -110,10 +118,24 @@ class RefImpl<T> {
 
   constructor(value: T, public readonly __v_isShallow: boolean) {
     this._rawValue = __v_isShallow ? value : toRaw(value)
+    // toReactive 传回来的是个 proxy, 但是 proxy没有value代理方法，它只有几个set，get等。
+    // 那 a.value 走的就是 RefImpl 自己的 get value方法。但深度嵌套的对象的各级属性的响应式并不是在这里，而是在获取这些属性时，对属性的 toReactive
     this._value = __v_isShallow ? value : toReactive(value)
+
+    // debugger
+    // console.log('---', this._value);
+    
+
+    /**
+     * ref 可以传普通类型，也可以传各种复杂的对象类型。
+     * 如果是普通类型，在 toReactive 里会直接返回这个 value。那创建好后 _value 就只是个简单类型.xx.value返回的就是原来的数据。修改数据通过 xx.value= 方式，那就走下面的set方法去修改。
+     * 如果是对象类型，在构造函数里就会去 toReactive，然后会 createReactiveObject，返回一个proxy。这个proxy代理了get和set方法，也是在这个get和set中去track和trigger。所以如果通过ref去响应化对象类型，其实并不需要通过下面的get和set value就可以响应式变化。通过_value去设置对象的属性，仍然是响应式的
+     * 
+     */
   }
 
   get value() {
+    // debugger
     trackRefValue(this)
     return this._value
   }
@@ -122,6 +144,9 @@ class RefImpl<T> {
     const useDirectValue =
       this.__v_isShallow || isShallow(newVal) || isReadonly(newVal)
     newVal = useDirectValue ? newVal : toRaw(newVal)
+    // 简单类型必须是值变了才会changed
+    // 复杂类型必须是引用变了才会changed，只是属性值变了不会changed，所以也就不会trigger
+    // count.value = {...} 直接重新赋一个新的对象，count依然是响应式的，秘密就在 toReactive(newVal)
     if (hasChanged(newVal, this._rawValue)) {
       this._rawValue = newVal
       this._value = useDirectValue ? newVal : toReactive(newVal)
