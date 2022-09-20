@@ -31,6 +31,9 @@ declare module '@vue/reactivity' {
   }
 }
 
+/**
+ * 就是一堆操作节点的方法,提出来条理清晰
+ */
 const rendererOptions = /*#__PURE__*/ extend({ patchProp }, nodeOps)
 
 // lazy create the renderer - this makes core renderer logic tree-shakable
