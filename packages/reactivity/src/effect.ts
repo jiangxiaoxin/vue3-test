@@ -252,6 +252,9 @@ export interface ReactiveEffectRunner<T = any> {
   effect: ReactiveEffect
 }
 
+/**
+ * 返回一个runner，它就是一个方法，fn对应的effect的run方法。绑定了this。
+ */
 export function effect<T = any>(
   fn: () => T,
   options?: ReactiveEffectOptions

@@ -8,7 +8,14 @@
     <script src="../../dist/vue.global.js"></script>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app">
+
+      <!-- <p>count: {{state.count}}</p> -->
+
+      <!-- 并不能绑定两次click.后面的click会被屏蔽掉 -->
+      <!-- <button @click="add" @click="reset" >click</button> -->
+
+    </div>
 
     <style>
       .red {
@@ -26,34 +33,69 @@
     </style>
 
     <script>
-      const { h, createApp, reactive, ref } = Vue
+      const { h, createApp, reactive, ref, onErrorCaptured } = Vue
+
 
       const App = {
         // exposed: true,
         setup() {
           let state = reactive({
-            count: 0
+            count: 10
           })
 
           let add = () => {
             state.count++
+            // throw new Error("我要报错了")
           }
+
+          let reset = () => {
+            state.count = 0
+          }
+
+
+          // 这里写了captured没用,因为这里没有parent,app本身就是最顶级了,所以里面没有再去查看captured钩子.
+          // onErrorCaptured(() => {
+          //   console.log("i catch error", ...arguments);
+          // })
 
           return {
             state,
-            add
+            add,
+            reset
           }
         },
 
+        mounted() {
+          console.log("mounted");
+        },
+
+
         render() {
-
-          const vnode = h("div", {class: 'red'}, [
-            h("p", null, [this.state.count]),
-            h("button", {onClick: this.add}, "click")
+          let vnode = h("div", {class: "container", id:"ddd", "add": "18"}, [
+            h("p", null, [
+              h("span", {style: {"color": "red"}}, "hello"),
+              h("span", {style: {"color": "green"}}, this.state.count)
+            ])
           ])
-
+          console.log("render vnode", vnode);
           return vnode
         }
+
+
+
+        // render() {
+        //   return h(null, ["这会被渲染成comment", h("div", "div里的文本")])
+        // }
+
+        // render() {
+
+        //   const vnode = h("div", {class: 'red'}, [
+        //     h("p", null, [this.state.count]),
+        //     h("button", {onClick: this.state.count < 5 ? this.add : this.reset}, "click")
+        //   ])
+
+        //   return vnode
+        // }
       }
 
       const app = createApp(App)
@@ -61,7 +103,7 @@
 
       // app.$watch
 
-      console.log(app);
+      console.log("app", app);
     </script>
   </body>
 </html>

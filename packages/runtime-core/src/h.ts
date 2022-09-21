@@ -171,6 +171,15 @@ export function h<P>(
 ): VNode
 
 // Actual implementation
+
+/**
+ * 创建虚拟节点.本质就是去new VNode.h方法就是处理下参数
+ * @param type 
+ * @param propsOrChildren 
+ * @param children 
+ * @returns vnode
+ */
+
 export function h(type: any, propsOrChildren?: any, children?: any): VNode {
   const l = arguments.length
 
@@ -187,8 +196,9 @@ export function h(type: any, propsOrChildren?: any, children?: any): VNode {
        * ])
        */
 
-      // 当渲染外层的div时，肯定要先知道里面的span是啥样才行吧
-      // 这样对于div的渲染，就变成了 h('div', [some vnode])
+      // 当渲染外层的div时，肯定要先知道里面的span是啥样才行
+      // 这样对于div的渲染，就变成了 h('div', [vnode])
+      // 对于h函数,里面的children常见就是vnode
 
       if (isVNode(propsOrChildren)) {
         return createVNode(type, null, [propsOrChildren])

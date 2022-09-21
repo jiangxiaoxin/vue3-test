@@ -1503,6 +1503,8 @@ function baseCreateRenderer(
         if (__DEV__) {
           startMeasure(instance, `patch`)
         }
+
+        // 取对比更新视图
         patch(
           prevTree,
           nextTree,

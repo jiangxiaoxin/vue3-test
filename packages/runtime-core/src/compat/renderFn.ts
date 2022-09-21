@@ -302,8 +302,8 @@ function convertLegacySlots(vnode: VNode): VNode {
 
   return vnode
 }
-
 export function defineLegacyVNodeProperties(vnode: VNode) {
+
   /* istanbul ignore if */
   if (
     isCompatEnabled(

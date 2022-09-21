@@ -69,6 +69,8 @@ export function patchEvent(
   nextValue: EventValue | null,
   instance: ComponentInternalInstance | null = null
 ) {
+
+  debugger
   // vei = vue event invokers
   const invokers = el._vei || (el._vei = {})
   const existingInvoker = invokers[rawName]
@@ -81,6 +83,7 @@ export function patchEvent(
       // add
       const invoker = (invokers[rawName] = createInvoker(nextValue, instance))
       addEventListener(el, name, invoker, options)
+      // 实际就是 el.addEventListener(name, (e) => nextValue(e))
     } else if (existingInvoker) {
       // remove
       removeEventListener(el, name, existingInvoker, options)
@@ -105,6 +108,7 @@ function parseName(name: string): [string, EventListenerOptions | undefined] {
   return [event, options]
 }
 
+// initialValue 是一堆事件回调函数
 function createInvoker(
   initialValue: EventValue,
   instance: ComponentInternalInstance | null
@@ -147,3 +151,34 @@ function patchStopImmediatePropagation(
     return value
   }
 }
+
+
+
+// 简化版的实现，只说明了流程
+// h.html 里通过onClick切换add还是reset可以看这里的流程
+
+// function createInvoker(fn) {
+//   let invoker = (e) => invoker.value(e)
+//   invoker.value = fn
+//   return invoker
+// }
+
+// function patchEvent(el, eventName, nextValue) {
+//   let invoker = el._evi || (el._evi = {})
+//   let event = eventName.slice(2).toLowerCase() // onClick => click 
+//   // 模板里写的时候是onClick，实际dom操作绑定事件时用click
+//   let existInvoker = invoker[eventName];
+
+//   if(existInvoker) {
+//     if(nextValue) {
+//       existInvoker.value = nextValue
+//     } else {
+//       el.removeEventListener(event, existInvoker)
+//       invoker[eventName] = null
+//     }
+//   } else {
+//     let newInvoker = createInvoker(nextValue)
+//     invoker[eventName] = newInvoker
+//     el.addEventListener(event, newInvoker)
+//   }
+// }

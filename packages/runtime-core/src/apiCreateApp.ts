@@ -288,7 +288,7 @@ export function createAppAPI<HostElement>(
         isSVG?: boolean
       ): any {
 
-        debugger
+        // debugger
         if (!isMounted) {
           // #5571
           if (__DEV__ && (rootContainer as any).__vue_app__) {

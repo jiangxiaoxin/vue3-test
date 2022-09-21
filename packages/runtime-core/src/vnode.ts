@@ -241,6 +241,7 @@ export let currentBlock: VNode[] | null = null
  * @private
  */
 export function openBlock(disableTracking = false) {
+  // 一种优化方式,可记录父容器下的动态子元素,用来在diff patch的过程中减少运算提高性能
   blockStack.push((currentBlock = disableTracking ? null : []))
 }
 
@@ -457,7 +458,7 @@ function createBaseVNode(
   }
 
   // validate key
-  // 一般情况下key是相等的,只有在NaN的时候不相等
+  // 一般情况下key是相等的,只有在NaN的时候不相等.这就是做了边界处理
   if (__DEV__ && vnode.key !== vnode.key) {
     warn(`VNode created with invalid key (NaN). VNode type:`, vnode.type)
   }
@@ -507,7 +508,7 @@ function _createVNode(
     if (__DEV__ && !type) {
       warn(`Invalid vnode type when creating vnode: ${type}.`)
     }
-    type = Comment
+    type = Comment //如果传入的type不合法,那就默认转为comment.即使后面的children里有h函数编译出来的正常的组件对象,最后也只是会被渲染成[object Object]这种toString
   }
 
   if (isVNode(type)) {
