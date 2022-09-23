@@ -425,7 +425,7 @@ function createBaseVNode(
     scopeId: currentScopeId,
     slotScopeIds: null,
     children,
-    component: null,
+    component: null, // ?? 这个component是在什么时候赋值的？
     suspense: null,
     ssContent: null,
     ssFallback: null,

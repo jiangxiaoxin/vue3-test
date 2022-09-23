@@ -301,7 +301,7 @@ export function createAppAPI<HostElement>(
 
           // vnode就是整个应用的根vnode
           const vnode = createVNode(
-            rootComponent as ConcreteComponent,
+            rootComponent as ConcreteComponent, // 这个rootComponent就是App这个component
             rootProps
           )
           // store app context on the root VNode.
@@ -320,7 +320,9 @@ export function createAppAPI<HostElement>(
           } else {
 
             // 调用render方法渲染真实应用
-            console.log("vnode", vnode);
+            console.log("创建的根vnode", vnode); // 这里打印时能看到vnode上有component。但其实断点时这里根本不会有component。只是在mount之后才会将vnode=>component
+            console.log("准备用render渲染");
+            
             
             render(vnode, rootContainer, isSVG)
           }

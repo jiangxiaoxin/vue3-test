@@ -365,7 +365,7 @@ function baseCreateRenderer(
 
     // debugger
 
-    console.log('patch');
+    console.log('patch 更新');
     
 
     if (n1 === n2) {
@@ -2332,6 +2332,9 @@ function baseCreateRenderer(
   }
 
   const render: RootRenderFunction = (vnode, container, isSVG) => {
+    // debugger
+    // 如果没有新的vnode，那就尝试去卸载之前的vnode
+    // 如果有新的vnode，那就patch 更新
     if (vnode == null) {
       if (container._vnode) {
         unmount(container._vnode, null, null, true)

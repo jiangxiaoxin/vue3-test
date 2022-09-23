@@ -25,9 +25,9 @@ export const patchProp: DOMRendererOptions['patchProp'] = (
     patchClass(el, nextValue, isSVG)
   } else if (key === 'style') {
     patchStyle(el, prevValue, nextValue)
-  } else if (isOn(key)) {
+  } else if (isOn(key)) { // onXXXX
     // ignore v-model listeners
-    if (!isModelListener(key)) {
+    if (!isModelListener(key)) { // 去掉v-model的事件实现。onUpdate：不在这里处理
       patchEvent(el, key, prevValue, nextValue, parentComponent)
     }
   } else if (

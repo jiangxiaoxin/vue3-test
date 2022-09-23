@@ -69,7 +69,7 @@ export const hydrate = ((...args) => {
 export const createApp = ((...args) => {
   // 在这已经传进去 rootComponent了
   const app = ensureRenderer().createApp(...args)
-
+  // debugger
   if (__DEV__) {
     injectNativeTagCheck(app)
     injectCompilerOptionsCheck(app)
