@@ -233,6 +233,11 @@ function createReactiveObject(
   return proxy
 }
 
+
+
+ // isReactive 看起来就是简单的判断下obj上面有没有标记。但其内部是拦截了整个get访问
+//  对于一般的对象，它本身就是个再简单不过的对象，那通过target[key]这样去访问属性，得到的就是undefined
+// 而对于reactive处理过的对象,它在处理的时候通过mutableHandlers就劫持了它的这几个属性的访问.通过闭包,在创建不同类型的get时,就已经确定了是reactive,还是readonly,还是shallowReactive,shallowReadonly等
 export function isReactive(value: unknown): boolean {
   if (isReadonly(value)) {
     return isReactive((value as Target)[ReactiveFlags.RAW])
@@ -258,10 +263,13 @@ export function toRaw<T>(observed: T): T {
   return raw ? toRaw(raw) : observed
 }
 
+
+/**
+ * markRaw 可以将参数标记为不可变成响应式数据。实现原理就是给value加一个skip标记，这样在to reactive时通过判断这个标记，直接跳过响应式转换
+ */
 export function markRaw<T extends object>(
   value: T
 ): T & { [RawSymbol]?: true } {
-  // markRaw 可以将参数标记为不可变成响应式数据。实现原理就是给value加一个skip标记，这样在to reactive时通过判断这个标记，直接跳过响应式转换
   def(value, ReactiveFlags.SKIP, true)
   return value
 }

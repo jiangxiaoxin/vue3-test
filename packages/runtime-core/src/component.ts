@@ -653,6 +653,7 @@ function setupStatefulComponent(
   }
   // 2. call setup()
   const { setup } = Component
+  // 组件有setup方法要执行setup方法，没有就直接跳过到finish
   if (setup) {
     const setupContext = (instance.setupContext =
       setup.length > 1 ? createSetupContext(instance) : null)
@@ -718,9 +719,11 @@ export function handleSetupResult(
       // set it as ssrRender instead.
       instance.ssrRender = setupResult
     } else {
+      // setup可以返回个render方法。看过有这么用的例子。
       instance.render = setupResult as InternalRenderFunction
     }
   } else if (isObject(setupResult)) {
+    // 这就是处理一般的setup返回的，返回是个object，对应setup内部声明的属性和方法
     if (__DEV__ && isVNode(setupResult)) {
       warn(
         `setup() should not return VNodes directly - ` +

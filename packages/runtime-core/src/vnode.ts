@@ -700,6 +700,8 @@ export function createStaticVNode(
 ): VNode {
   // A static vnode can contain multiple stringified elements, and the number
   // of elements is necessary for hydration.
+
+  debugger
   const vnode = createVNode(Static, null, content)
   vnode.staticCount = numberOfNodes
   return vnode

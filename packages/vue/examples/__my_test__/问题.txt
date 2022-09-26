@@ -14,7 +14,7 @@ http://localhost:5000/packages/vue/examples/composition/__test__/computed
 2. 如果换成effect,会执行几次??
 effect 会是两次
 
-3. flushJob 和 schedule 这是watchEffect只执行一次的关键
+3. flushJob 和 schedule 这是watchEffect只执行一次的关键. 执行队列怎么构建的？
 
 4. 一个target上的key可以对应一系列的 effect,并且这些effect在收集的时候,收集的顺序可能跟别的effect交织在一起,那重新执行时如何确保执行的顺序呢?
 
@@ -35,3 +35,11 @@ a会收集[e1, e3], b会收集[e1, e2], 更新b,e1会重新执行,e2也会重新
 最后return vnode还挺简单的,就是往一个对象身上加了一堆属性,然后返回了.
 
 h方法生成vnode,然后render负责将这个对象翻译成实际的dom元素,然后挂载到根节点上
+
+6. 编译时对模板分析后优化生成的渲染函数
+
+静态节点提升。怎么判断是不是静态节点？
+单独静态节点提升。静态节点块提升。
+静态节点是本身不会变的节点，这样提出来单独成vnode对象，在前后两次patch的过程中不再走这几个对象的createVNode过程。而是在使用的时候直接将节点的innerHtml改了，然后添加到舞台上
+
+7. 用jsx编写组件时，到底有没有模板编译优化？

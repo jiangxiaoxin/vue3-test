@@ -9,12 +9,10 @@
   </head>
   <body>
     <div id="app">
-
-      <!-- <p>count: {{state.count}}</p> -->
+      <p>count: {{count}}</p>
 
       <!-- 并不能绑定两次click.后面的click会被屏蔽掉 -->
-      <!-- <button @click="add" @click="reset" >click</button> -->
-
+      <button @click="add" >click</button>
     </div>
 
     <style>
@@ -29,12 +27,10 @@
       .big {
         font-size: 40px;
       }
-
     </style>
 
     <script>
       const { h, createApp, reactive, ref, onErrorCaptured } = Vue
-
 
       const App = {
         // exposed: true,
@@ -52,36 +48,49 @@
             state.count = 0
           }
 
+          function getMultiHello() {
+            let result = []
+
+            for (let i = 0; i < 20; i++) {
+              result.push(h('span', 'hello'))
+            }
+            return result
+          }
 
           // 这里写了captured没用,因为这里没有parent,app本身就是最顶级了,所以里面没有再去查看captured钩子.
           // onErrorCaptured(() => {
           //   console.log("i catch error", ...arguments);
           // })
 
+          // return {
+          //   state,
+          //   add,
+          //   reset,
+          //   getMultiHello
+          // }
+
+          // 只导出普通的变量
           return {
-            state,
-            add,
-            reset
+            count: 1
           }
         },
 
-        mounted() {
-          console.log("mounted");
-        },
-
-
-        render() {
-          let vnode = h("div", {class: "container", id:"ddd", "add": "18"}, [
-            h("p", null, [
-              h("span", {style: {"color": "red"}}, "hello"),
-              h("span", {style: {"color": "green"}}, this.state.count)
-            ])
-          ])
-          console.log("test render vnode", vnode);
-          return vnode
+        methods: {
+          add() {
+            this.count+=10;
+          }
         }
 
-
+        // render() {
+        //   // let vnode = h("div", {class: "container", id:"ddd", "add": "18"}, [
+        //   //   h("p", null, [
+        //   //     h("span", "hello"),
+        //   //   ])
+        //   // ])
+        //   let vnode = this.getMultiHello()
+        //   console.log('test render vnode', vnode)
+        //   return vnode
+        // }
 
         // render() {
         //   return h(null, ["这会被渲染成comment", h("div", "div里的文本")])
@@ -103,7 +112,7 @@
 
       // app.$watch
 
-      console.log("app", app);
+      console.log('app', app)
     </script>
   </body>
 </html>

@@ -74,6 +74,7 @@ export function triggerRefValue(ref: RefBase<any>, newVal?: any) {
 }
 
 export function isRef<T>(r: Ref<T> | unknown): r is Ref<T>
+// 有标记就是，没有标记就不是
 export function isRef(r: any): r is Ref {
   return !!(r && r.__v_isRef === true)
 }
@@ -159,6 +160,9 @@ export function triggerRef(ref: Ref) {
   triggerRefValue(ref, __DEV__ ? ref.value : void 0)
 }
 
+/**
+ * 就只是返回了 ref.value而已，
+ */
 export function unref<T>(ref: T | Ref<T>): T {
   return isRef(ref) ? (ref.value as any) : ref
 }
@@ -179,6 +183,10 @@ const shallowUnwrapHandlers: ProxyHandler<any> = {
 export function proxyRefs<T extends object>(
   objectWithRefs: T
 ): ShallowUnwrapRef<T> {
+  // setup返回的一般都是reactive的，但也没强求，可以完全只是声明些普通变量，然后导出。
+  // 那这里对返回的普通的变量做了一点拦截
+  debugger
+ 
   return isReactive(objectWithRefs)
     ? objectWithRefs
     : new Proxy(objectWithRefs, shallowUnwrapHandlers)
