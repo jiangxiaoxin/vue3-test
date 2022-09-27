@@ -72,7 +72,7 @@ export function renderComponentRoot(
     if (vnode.shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
       // withProxy is a proxy with a different `has` trap only for
       // runtime-compiled render functions using `with` block.
-      const proxyToUse = withProxy || proxy
+      const proxyToUse = withProxy || proxy // 先用withproxy再用proxy
       result = normalizeVNode(
         render!.call(
           proxyToUse,
@@ -83,7 +83,7 @@ export function renderComponentRoot(
           data,
           ctx
         )
-      )
+      ) // 调用render返回的就是vnode
       fallthroughAttrs = attrs
     } else {
       // functional

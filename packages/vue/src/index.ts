@@ -1,5 +1,5 @@
 // This entry is the "full-build" that includes both the runtime
-// and the compiler, and supports on-the-fly compilation of the template option.
+// and the compiler, and supports on-the-fly compilation of the template option. // 支持即时编译.全量打包的
 import { initDev } from './dev'
 import { compile, CompilerOptions, CompilerError } from '@vue/compiler-dom'
 import { registerRuntimeCompiler, RenderFunction, warn } from '@vue/runtime-dom'
@@ -8,15 +8,21 @@ import { isString, NOOP, generateCodeFrame, extend } from '@vue/shared'
 import { InternalRenderFunction } from 'packages/runtime-core/src/component'
 
 if (__DEV__) {
-  initDev()
+  // initDev() //不要了,看起来烦
 }
 
 const compileCache: Record<string, RenderFunction> = Object.create(null)
 
+/**
+ * 确保能通过template,转换成render方法
+ * @param template 最好是模板字符串,不是的话就会尝试去拿一下.所以导出的方法并不是真正核心的compile方法,而是又包了一层
+ * @param options 
+ * @returns 
+ */
 function compileToFunction(
   template: string | HTMLElement,
   options?: CompilerOptions
-): RenderFunction {
+): RenderFunction { //  最后要返回一个方法
   if (!isString(template)) {
     if (template.nodeType) {
       template = template.innerHTML
@@ -79,10 +85,14 @@ function compileToFunction(
   // the wildcard object.
   const render = (
     __GLOBAL__ ? new Function(code)() : new Function('Vue', code)(runtimeDom)
-  ) as RenderFunction
+  ) as RenderFunction // 这有点神奇了,new Function?
+
+
+  // @ts-ignore
+  render.__code = code // test
 
   // mark the function as runtime compiled
-  ;(render as InternalRenderFunction)._rc = true
+  ;(render as InternalRenderFunction)._rc = true // rc= runtime compiled
 
   return (compileCache[key] = render)
 }

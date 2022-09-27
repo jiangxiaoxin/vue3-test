@@ -768,10 +768,10 @@ let installWithProxy: (i: ComponentInternalInstance) => void
  * For runtime-dom to register the compiler.
  * Note the exported method uses any to avoid d.ts relying on the compiler types.
  */
-export function registerRuntimeCompiler(_compile: any) {
+export function registerRuntimeCompiler(_compile: any) { // 全量的vue又将自己的compile方法传入进来,
   compile = _compile
   installWithProxy = i => {
-    if (i.render!._rc) {
+    if (i.render!._rc) { // runtime compile 模板返回的render方法有这个_rc标识
       i.withProxy = new Proxy(i.ctx, RuntimeCompiledPublicInstanceProxyHandlers)
     }
   }
@@ -834,7 +834,7 @@ export function finishComponentSetup(
         }
         
 
-        console.log("组件还没有render方法,尝试去编译模板来创建render");
+        console.log("组件还没有render方法,尝试去编译模板来创建render方法");
         
         Component.render = compile(template, finalCompilerOptions)
         if (__DEV__) {
@@ -843,13 +843,15 @@ export function finishComponentSetup(
       }
     }
 
+
+    // instance的render方法就是组件的render方法,先保证组件有了之后,直接拿过来
     instance.render = (Component.render || NOOP) as InternalRenderFunction
 
     // for runtime-compiled render functions using `with` blocks, the render
     // proxy used needs a different `has` handler which is more performant and
     // also only allows a whitelist of globals to fallthrough.
     if (installWithProxy) {
-      installWithProxy(instance)
+      installWithProxy(instance) // 给instance添加了withProxy属性,它是个proxy,代理的是instance上的ctx
     }
   }
 
