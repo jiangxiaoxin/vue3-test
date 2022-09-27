@@ -43,13 +43,22 @@ export function injectHook(
         resetTracking()
         return res
       })
-    if (prepend) {
+
+      /**
+       * push的是wrappedHook,而不是直接一个hook.这里面是为了使执行hook时的target和currentInstance一定是一致的.
+       * 当执行hook时,其实执行的是wrappedHook,然后就会设置currentInstance,这样就保证一致了.
+       * 通过闭包,保存下实例和用户回调,将实例和用户回调始终对应起来.
+       */
+
+
+    if (prepend) { // 在前面加,提高执行优先级
       hooks.unshift(wrappedHook)
-    } else {
+    } else { // 普通就是按顺序push
       hooks.push(wrappedHook)
     }
     return wrappedHook
   } else if (__DEV__) {
+    // dev下提示,hooks必须在组件内部使用,而不能在外部其他地方写
     const apiName = toHandlerKey(ErrorTypeStrings[type].replace(/ hook$/, ''))
     warn(
       `${apiName} is called when there is no active component instance to be ` +

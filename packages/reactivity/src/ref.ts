@@ -185,7 +185,7 @@ export function proxyRefs<T extends object>(
 ): ShallowUnwrapRef<T> {
   // setup返回的一般都是reactive的，但也没强求，可以完全只是声明些普通变量，然后导出。
   // 那这里对返回的普通的变量做了一点拦截
-  debugger
+  // debugger
  
   return isReactive(objectWithRefs)
     ? objectWithRefs

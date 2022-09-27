@@ -61,7 +61,7 @@ export class ComputedRefImpl<T> {
   }
 
   get value() {
-    debugger
+    // debugger
     // the computed ref may get wrapped by other proxies e.g. readonly() #3376
     const self = toRaw(this)
     trackRefValue(self)
@@ -75,7 +75,7 @@ export class ComputedRefImpl<T> {
 
       // 默认创建好后dirty就是true，标记成脏的，意思是希望计算一次值。这样计算完之后，dirty改为false，可以将值存下来了
 
-      debugger
+      // debugger
       self._dirty = false
       self._value = self.effect.run()!
     }
@@ -106,7 +106,7 @@ export function computed<T>(
   let getter: ComputedGetter<T>
   let setter: ComputedSetter<T>
 
-  debugger
+  // debugger
 
   // 一般的用法,computed里面直接包的就是个箭头函数,这样onlyGetter = true
   const onlyGetter = isFunction(getterOrOptions)

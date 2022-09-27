@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>h测试</title>
+    <script src="../../dist/vue.global.js"></script>
+  </head>
+  <body>
+
+    <script type="x-template" id="item-temp">
+      <div>
+        <h2>child</h2>
+        <p>mytime: {{mytime}}</p>
+      </div>
+    </script>
+    <div id="app">
+      <h1>father</h1>
+      <p>count: {{state.count}}</p>
+      <button @click="change">在father里改</button>
+
+      <!-- <Item :time="state.time"/> -->
+
+
+
+    </div>
+
+    <style>
+      .red {
+        color: red;
+      }
+
+      .green {
+        color: green;
+      }
+
+      .big {
+        font-size: 40px;
+      }
+    </style>
+
+    <script>
+      const { h, createApp, reactive, ref, onErrorCaptured, isRef, isReactive, computed, onMounted } = Vue
+
+      const Item = {
+        props: ['time'],
+        setup(props) {
+          console.log("item setup")
+          console.log("item props", props); // proxy
+          console.log(isRef(props), isReactive(props), isRef(props.time), isReactive(props.time)) // false, true, false, false
+
+          const mytime = computed(() => {
+            return props.time
+          })
+
+          onMounted(() => {
+            console.log("item mounted")
+          })
+
+          return {
+            mytime
+          }
+        },
+        template: document.getElementById("item-temp"),
+      }
+
+      const App = {
+        components: {
+          Item
+        },
+        setup() {
+          console.log("app setup")
+          let state = reactive({
+            count: 10,
+            time: new Date().toString()
+          })
+
+          let change = () => {
+            state.count = Math.random()
+            state.time = new Date().toString()
+          }
+
+          debugger
+          onMounted(() => {
+            console.log("app mounted")
+          })
+
+          return {
+            state,
+            change
+          }
+        },
+
+      }
+
+      const app = createApp(App)
+      app.mount('#app')
+
+      // app.$watch
+
+      console.log('app', app)
+    </script>
+
+    <script>
+
+    </script>
+  </body>
+</html>

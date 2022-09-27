@@ -365,7 +365,7 @@ function baseCreateRenderer(
 
     // debugger
 
-    console.log('patch 更新');
+    // console.log('patch 更新');
     
 
     if (n1 === n2) {
@@ -1321,6 +1321,8 @@ function baseCreateRenderer(
 
         toggleRecurse(instance, false)
         // beforeMount hook
+
+        // 一个钩子函数可以写好几个自定义回调,所以 bm 是个数组
         if (bm) {
           invokeArrayFns(bm)
         }

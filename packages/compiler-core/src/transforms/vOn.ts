@@ -35,6 +35,8 @@ export const transformOn: DirectiveTransform = (
   context,
   augmentor
 ) => {
+
+  
   const { loc, modifiers, arg } = dir as VOnDirectiveNode
   if (!dir.exp && !modifiers.length) {
     context.onError(createCompilerError(ErrorCodes.X_V_ON_NO_EXPRESSION, loc))

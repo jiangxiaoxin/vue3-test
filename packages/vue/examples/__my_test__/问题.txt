@@ -43,3 +43,16 @@ h方法生成vnode,然后render负责将这个对象翻译成实际的dom元素,
 静态节点是本身不会变的节点，这样提出来单独成vnode对象，在前后两次patch的过程中不再走这几个对象的createVNode过程。而是在使用的时候直接将节点的innerHtml改了，然后添加到舞台上
 
 7. 用jsx编写组件时，到底有没有模板编译优化？
+
+8. lifecycle
+
+father setup ->
+                father beforeMount -> 发现还有子组件
+                                      child setup ->
+                                                    child beforeMount -> 就自己,没有其他的
+                                                  <- child mounted
+                                             <- father mounted
+
+
+9. queueJob => flushJobs => doJob => checkQueue => flushJobs
+

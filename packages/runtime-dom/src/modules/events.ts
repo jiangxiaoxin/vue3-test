@@ -70,7 +70,7 @@ export function patchEvent(
   instance: ComponentInternalInstance | null = null
 ) {
 
-  debugger
+  // debugger
   // vei = vue event invokers
   const invokers = el._vei || (el._vei = {})
   const existingInvoker = invokers[rawName]

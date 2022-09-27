@@ -568,7 +568,14 @@ export let currentInstance: ComponentInternalInstance | null = null
 export const getCurrentInstance: () => ComponentInternalInstance | null = () =>
   currentInstance || currentRenderingInstance
 
+
+// getCurrentInstance 可以在任意方法中拿到当前实例.这个实例就是调用这个get方法时所在的instance
+// 它的实现就是在某个方法出调用这个get时,尤其是生命周期钩子,会将方法跟当前实例通过闭包结合到一起,这样当要触发外层函数时,会通过闭包先调用一下set,把instance设置好,然后才是调用get方法获取currentInstance
+
+
 export const setCurrentInstance = (instance: ComponentInternalInstance) => {
+
+  // debugger
   currentInstance = instance
   instance.scope.on()
 }
@@ -825,6 +832,10 @@ export function finishComponentSetup(
             extend(finalCompilerOptions.compatConfig, Component.compatConfig)
           }
         }
+        
+
+        console.log("组件还没有render方法,尝试去编译模板来创建render");
+        
         Component.render = compile(template, finalCompilerOptions)
         if (__DEV__) {
           endMeasure(instance, `compile`)

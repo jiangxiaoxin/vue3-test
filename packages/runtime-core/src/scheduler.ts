@@ -34,6 +34,13 @@ export interface SchedulerJob extends Function {
 
 export type SchedulerJobs = SchedulerJob | SchedulerJob[]
 
+
+// queue 任务队列,存下所有要执行的回调
+// queueJob 向任务队列里添加任务.添加完后调用 queueFlush 去尝试执行当前 queue里的回调
+// queueFlush 里调用 flushJobs, 尝试去真的执行回调了.它有一个try-catch-finally结果,会在finally里尝试再去 flushJobs一次
+
+// queueJob -> queueFlush -> flushJobs
+
 let isFlushing = false
 let isFlushPending = false
 
@@ -54,7 +61,7 @@ export function nextTick<T = void>(
   this: T,
   fn?: (this: T) => void
 ): Promise<void> {
-  const p = currentFlushPromise || resolvedPromise
+  const p = currentFlushPromise || resolvedPromise // 就是这个promise,nextTick都是在当前的队列执行完之后才会执行
   return fn ? p.then(this ? fn.bind(this) : fn) : p
 }
 
@@ -77,6 +84,8 @@ function findInsertionIndex(id: number) {
 }
 
 export function queueJob(job: SchedulerJob) {
+  console.log("%c queueJob", "background: pink;");
+
   // the dedupe search uses the startIndex argument of Array.includes()
   // by default the search index includes the current job that is being run
   // so it cannot recursively trigger itself again.
@@ -100,6 +109,8 @@ export function queueJob(job: SchedulerJob) {
 }
 
 function queueFlush() {
+  console.log("%c queueFlush", "background: pink;");
+  
   if (!isFlushing && !isFlushPending) {
     isFlushPending = true
     currentFlushPromise = resolvedPromise.then(flushJobs)
@@ -203,8 +214,11 @@ const comparator = (a: SchedulerJob, b: SchedulerJob): number => {
 }
 
 function flushJobs(seen?: CountMap) {
+  
   isFlushPending = false
   isFlushing = true
+
+  console.log("%c flushJobs", "background: pink;", seen)
   if (__DEV__) {
     seen = seen || new Map()
   }
@@ -234,11 +248,15 @@ function flushJobs(seen?: CountMap) {
         if (__DEV__ && check(job)) {
           continue
         }
-        // console.log(`running:`, job.id)
+        console.log(`flushJob:`, job.id)
         callWithErrorHandling(job, null, ErrorCodes.SCHEDULER)
       }
     }
   } finally {
+
+    // queue直接就清空了?
+    // 因为 callWithErrorHandling 里面是个try catch结构,所以它不会因为报错导致后续job无法执行,所以只要启动flushJobs,queue里所有的job都会取出来执行,那finally里就可以清空队列了
+
     flushIndex = 0
     queue.length = 0
 
