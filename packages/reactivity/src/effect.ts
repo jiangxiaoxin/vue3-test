@@ -147,19 +147,17 @@ export class ReactiveEffect<T = any> {
 
       this.parent = activeEffect
 
-      
-      
-
-      activeEffect = this
-
       {
         // 我自己的测试代码
         // @ts-ignore
-        if(!activeEffect["_effect_id_"]) {
+        if(!this["_effect_id_"]) {
           // @ts-ignore
-          activeEffect['_effect_id_'] = "_effect_id_" + effectCount++;
+          this['_effect_id_'] = "_effect_id_" + effectCount++;
         }
       }
+      
+
+      activeEffect = this
 
       // console.log("%c --effect run的时候,把activeEffect替换成自己", 'color:#fadfa3;background: #030307;',activeEffect)
       shouldTrack = true
@@ -182,7 +180,7 @@ export class ReactiveEffect<T = any> {
       
       // 在fn执行之前,设置对应的effect为activeEffect
       
-      return this.fn()
+      return this.fn() //TODO 这个return有什么用呢?不管是什么结果最终都不会return回去,因为一定会走finally.如果要return数据,也只能在finally里return才有效.而且其实没必要return,因为run的时候,就是执行传入effect里的函数,这个函数的返回值又没有地方接收使用,根本不需要返回
     } finally {
       if (effectTrackDepth <= maxMarkerBits) {
         finalizeDepMarkers(this)
@@ -263,6 +261,7 @@ export function effect<T = any>(
   // debugger
 
   if ((fn as ReactiveEffectRunner).effect) {
+    // TODO 如果传入的fn本身是个被effect包装过之后的runner,那就取出它原本的fn,然后对这个原本的fn进行包装.那这不是一个fn会对应多个effect
     fn = (fn as ReactiveEffectRunner).effect.fn
   }
 
@@ -272,6 +271,7 @@ export function effect<T = any>(
     if (options.scope) recordEffectScope(_effect, options.scope)
   }
   if (!options || !options.lazy) {
+    // 如果没有options或者有但是并没有设定是lazy的,那就立即执行一次
     _effect.run()
   }
   const runner = _effect.run.bind(_effect) as ReactiveEffectRunner
@@ -337,6 +337,9 @@ export function trackEffects(
   dep: Dep,
   debuggerEventExtraInfo?: DebuggerEventExtraInfo
 ) {
+
+  debugger
+
   let shouldTrack = false
   if (effectTrackDepth <= maxMarkerBits) {
     if (!newTracked(dep)) {
@@ -489,6 +492,8 @@ function triggerEffect(
     
     // debugger
     if (effect.scheduler) {
+
+      // 这里跟effect方法创建ReactiveEffect有关.effect可以通过options传入sheduler参数,这样effect的触发流程就会改变,走到这里时,会先scheduler再run
       // console.log("-----------> triggerEffect, effect.scheduler");
       
       effect.scheduler()

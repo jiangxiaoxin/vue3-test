@@ -41,6 +41,8 @@ export class ComputedRefImpl<T> {
     isReadonly: boolean,
     isSSR: boolean
   ) {
+
+    //  这里就是典型的通过effect,先执行一次fn,然后后续执行scheduler
     this.effect = new ReactiveEffect(getter, () => {
       // getter 访问的属性(count)会作为key来收集它所在的 this.effect
       // 当count发生值改变时,会trigger effect.scheduler ,也就执行到这

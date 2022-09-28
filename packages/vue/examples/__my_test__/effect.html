@@ -10,29 +10,47 @@
     amount: 0
   })
 
-  // effect(() => {
-  //   console.log("effect run");
-  // })
+  let fn = () => {
+    console.log("price", product.price)
+  }
 
-  // effect(() => {
-  //   console.log("count", count.value)
-  // })
+  // test 1
+  // effect(fn)
+  // effect(fn)
+  // effect(fn)
 
-  // effect(() => {
-  //   console.log("price", product.price)
-  // })
+  // test 2
+  // let runner1 = effect(fn)
+  // let runner2 = effect(runner1)
+  // let runner3 = effect(runner2)
 
-  const runner = effect(() => {
-    effect(() => {
-      effect(() => {
-        console.log("deep count", count.value)
-      })
-    })
+
+  // test 3
+  // effect会立马执行fn,后续price更新,就不走fn了,而是走scheduler
+  effect(() => {
+    console.log("price", product.price);
+  }, {
+    // scheduler: () => {
+    //   console.log("in scheduler", product.price);
+    // }
   })
 
-  console.log(runner.effect)
 
-  // runner()
+  // function foo() {
+  //   try {
+  //     console.log("try");
+  //     return 111
+  //   } catch (error) {
+  //     console.log("error");
+  //     return 222
+  //   } finally {
+  //     console.log("finally");
+  //     return 333
+  //   }
+  // }
+
+  // console.log(foo());
+  
 
 
 

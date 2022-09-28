@@ -159,6 +159,8 @@ function createGetter(isReadonly = false, shallow = false) {
       // reactive 的依赖收集
 
       // console.log('%c --get中实现track', "background: #0f0; color: #fff;", target, key);
+
+      debugger
       
       track(target, TrackOpTypes.GET, key)
     }
