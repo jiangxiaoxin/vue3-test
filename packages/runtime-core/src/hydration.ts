@@ -36,6 +36,7 @@ const enum DOMNodeTypes {
   COMMENT = 8
 }
 
+
 let hasMismatch = false
 
 const isSVGContainer = (container: Element) =>

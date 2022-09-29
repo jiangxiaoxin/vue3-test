@@ -96,7 +96,6 @@ function compileToFunction(
 
   return (compileCache[key] = render)
 }
-
 registerRuntimeCompiler(compileToFunction)
 
 export { compileToFunction as compile }
